@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo App List</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .remove-task,
+        .edit_task {
+            cursor: pointer;
+            /* Change cursor to pointer when hovering over the X button */
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <h1 class="text-center mb-4">ToDo App</h1>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="taskInput" placeholder="Enter a new task">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary m-2" id="addTaskBtn">Add Task</button>
+                        <button class="btn btn-danger m-2" id="clearTasksBtn">Clear All</button>
+                        <!-- New clear button -->
+                    </div>
+                </div>
+                <ul class="list-group" id="taskList">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const taskInput = document.getElementById('taskInput');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const clearTasksBtn = document.getElementById('clearTasksBtn'); // Reference to clear button
+            const taskList = document.getElementById('taskList');
+
+            addTaskBtn.addEventListener('click', function () {
+                const taskText = taskInput.value.trim();
+                if (taskText !== '') {
+                    addTask(taskText);
+                    taskInput.value = '';
+
+                    // Logging when item is added
+                    console.log('Item added:', taskText);
+                }
+            });
+
+            clearTasksBtn.addEventListener('click', function () {
+                taskList.innerHTML = ''; // Clear all list items
+
+                // Logging when all items are cleared
+                console.log('All items cleared.');
+            });
+
+            // Event delegation for task list actions
+            taskList.addEventListener('click', function (event) {
+                if (event.target.classList.contains('remove-task')) {
+                    const removedTask = event.target.parentElement.parentElement.textContent.trim();
+                    event.target.parentElement.parentElement.remove(); // Remove parent li element
+
+                    // Logging when item is removed
+                    strremovedTask = removedTask.replace(/&#10006;|&#9998;/g, '');
+                    console.log('Item removed:', strremovedTask);
+                } else if (event.target.classList.contains('edit-task')) {
+                    const li = event.target.parentElement.parentElement;
+                    const spanTaskText = li.querySelector('.task-text');
+                    const originalText = spanTaskText.textContent.trim();
+
+                    // Create an input element for editing
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = originalText;
+                    input.classList.add('form-control');
+
+                    // Replace span with input
+                    li.replaceChild(input, spanTaskText);
+                    input.focus();
+
+                    // Handle saving the edited task
+                    input.addEventListener('blur', function () {
+                        const updatedTaskText = input.value.trim();
+                        saveEdit(updatedTaskText, li, originalText);
+                    });
+
+                    input.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            const updatedTaskText = input.value.trim();
+                            saveEdit(updatedTaskText, li, originalText);
+                        }
+                    });
+                }
+            });
+
+            function saveEdit(updatedTaskText, li, originalText) {
+                const input = li.querySelector('input');
+                if (input && input.parentNode === li) {
+                    // Replace special characters in task text strings
+                    const stroriginalText = originalText.replace(/&#10006;|&#9998;/g, '');
+                    const strupdatedTaskText = updatedTaskText.replace(/&#10006;|&#9998;/g, '');
+
+                    const spanTaskText = document.createElement('span');
+                    spanTaskText.textContent = strupdatedTaskText;
+                    spanTaskText.classList.add('task-text');
+
+                    // Replace input with span
+                    li.replaceChild(spanTaskText, input);
+
+                    // Logging when item is edited
+                    console.log('Item edited:', stroriginalText, '=>', strupdatedTaskText);
+                } else {
+                    console.error('Failed to save edit: Input element is not found or is not a child of its parent.');
+                }
+            }
+
+
+
+            function add_Task(taskText) {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+                const spanTaskText = document.createElement('span');
+                spanTaskText.textContent = taskText;
+                spanTaskText.classList.add('task-text');
+                li.appendChild(spanTaskText);
+
+                const spanButtons = document.createElement('span');
+                const editButton = document.createElement('span');
+                editButton.classList.add('edit-task');
+                editButton.innerHTML = '&#9998;'; // Edit icon
+
+                const removeButton = document.createElement('span');
+                removeButton.classList.add('remove-task');
+                removeButton.innerHTML = '&#10006;'; // X icon
+
+                spanButtons.appendChild(editButton);
+                spanButtons.appendChild(removeButton);
+
+                li.appendChild(spanButtons);
+                taskList.appendChild(li);
+
+
+            }
+        });
+
+    </script>
+</body>
+
+</html>
